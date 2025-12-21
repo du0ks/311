@@ -19,13 +19,6 @@ A modern web-based admin panel for managing sales, orders, deliveries, payments,
 3. Add your report PDF to `data/project-report.pdf`
 4. Add your ER diagram to `assets/er-diagram.png`
 
-## Team
-- Doğa Aşkın
-- Duhan Onat Karadayı
-- Gülizar Uz
-- Mert Cevdet Gürsel
-- Rümeysa Daştan
-
 ## File Structure
 ```
 assets/              # Images and diagrams
