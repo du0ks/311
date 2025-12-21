@@ -104,7 +104,7 @@ async function initDashboard() {
   if (productStockBody) {
     const products = await loadJSON("data/products.json");
     productStockBody.innerHTML = products.map(p => {
-      const lowStock = p.Stock < 60;
+      const lowStock = p.Stock < 85;
       return `<tr${lowStock ? ' class="low-stock"' : ''}>
         <td>${escapeHTML(p.Brand)}</td>
         <td>${escapeHTML(p.Model)}</td>
