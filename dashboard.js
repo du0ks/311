@@ -252,6 +252,79 @@ async function loadServiceDashboard() {
       })
       .join("");
   }
+
+  // Load warranty tracking
+  await loadWarrantyTracking();
+}
+
+// =====================
+// WARRANTY TRACKING
+// =====================
+async function loadWarrantyTracking() {
+  const warrantyBody = document.getElementById("warrantyBody");
+  if (!warrantyBody) return;
+
+  const [orders, customers, products, orderItems] = await Promise.all([
+    loadJSON("data/orders.json"),
+    loadJSON("data/customers.json"),
+    loadJSON("data/products.json"),
+    loadJSON("data/order_items.json")
+  ]);
+
+  const customerById = indexBy(customers, "CustomerID");
+  const productById = indexBy(products, "ProductID");
+
+  const today = new Date();
+  const warrantyRows = [];
+
+  orderItems.forEach(item => {
+    const order = orders.find(o => o.OrderID === item.OrderID);
+    const product = productById[item.ProductID];
+    const customer = customerById[order.CustomerID];
+
+    if (product && customer && order) {
+      const purchaseDate = new Date(order.OrderDate);
+      const warrantyMonths = product.WarrantyPeriod;
+      const expiryDate = new Date(purchaseDate);
+      expiryDate.setMonth(expiryDate.getMonth() + warrantyMonths);
+
+      const daysRemaining = Math.floor((expiryDate - today) / (1000 * 60 * 60 * 24));
+      let status = "Active";
+      let statusClass = "warranty-active";
+
+      if (daysRemaining < 0) {
+        status = "Expired";
+        statusClass = "warranty-expired";
+      } else if (daysRemaining < 30) {
+        status = "Expiring Soon";
+        statusClass = "warranty-expiring";
+      }
+
+      warrantyRows.push({
+        product: `${product.Brand} ${product.Model}`,
+        customer: customer.CustomerName,
+        purchaseDate: order.OrderDate,
+        warrantyMonths: warrantyMonths,
+        expiryDate: expiryDate.toISOString().split('T')[0],
+        status: status,
+        statusClass: statusClass
+      });
+    }
+  });
+
+  // Sort by expiry date (soonest first)
+  warrantyRows.sort((a, b) => new Date(a.expiryDate) - new Date(b.expiryDate));
+
+  warrantyBody.innerHTML = warrantyRows.map(row => `
+    <tr class="${row.statusClass}">
+      <td>${escapeHTML(row.product)}</td>
+      <td>${escapeHTML(row.customer)}</td>
+      <td>${row.purchaseDate}</td>
+      <td>${row.warrantyMonths} months</td>
+      <td>${row.expiryDate}</td>
+      <td class="center"><span class="warranty-badge ${row.statusClass}">${row.status}</span></td>
+    </tr>
+  `).join("");
 }
 
 // =====================
