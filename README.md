@@ -1,38 +1,41 @@
-# Sales & After-Sales Admin Dashboard
+# Retail Management: sales and after-sales admin dashboard
 
-A modern web-based admin panel for managing sales, orders, deliveries, payments, service requests, and product inventory. Built for course project 311.
+Team project for STAT 311 (Modern Database Systems) at METU, Department of Statistics, January 2026. We designed a relational database for an electronics and home appliances retailer and built a small admin panel on top of the data.
 
-## Features
-- **Sales Dashboard:** KPIs, order breakdowns, payment methods, product stock overview
-- **After-Sales Dashboard:** Service request tracking, status breakdowns
-- **Order & Service Details:** Detailed views for each order and service request
-- **Low Stock Alerts:** Visual warnings for products with low inventory
-- **Project Info:** About page with team, ER diagram, and report download
+Team (Group 2): Duhan Onat Karadayı, Doğa Aksan, Gülizar Uz, Mert Cevdet Gürsel, Rümeysa Daştan.
 
-## Tech Stack
-- HTML, CSS, JavaScript (Vanilla)
-- JSON data files for backend simulation
+All customers, orders and products in this repo are made up. We generated a synthetic dataset for the course.
 
-## Setup
-1. Clone the repository
-2. Place all files in a web server or open `index.html` in your browser
-3. Add your report PDF to `data/project-report.pdf`
-4. Add your ER diagram to `assets/er-diagram.png`
+## Database
 
-## File Structure
-```
-assets/              # Images and diagrams
-css/                 # Stylesheets
-js/                  # JavaScript files
-index.html           # Main dashboard
-service-dashboard.html
-orders.html
-order.html
-service-requests.html
-service.html
-about.html           # Project info
-README.md            # This file
+`database.sql` is the PostgreSQL schema with sample data. It creates 12 tables: Customer, Category, Product, Location, Store, Warehouse, Orders, Order_Item, Payment, Delivery, Service_Request and Inventory, with primary and foreign keys.
+
+![ER diagram](assets/er-diagram.png)
+
+The full write-up, including the ER model, schema and the SQL queries we used to answer our research questions, is in [data/project-report.pdf](data/project-report.pdf).
+
+## Dashboard
+
+The web panel is plain HTML, CSS and JavaScript. It doesn't connect to the database. It reads JSON exports of the same tables from `data/` (customers, products, orders, order items, payments, deliveries, service requests). All page logic is in `dashboard.js`.
+
+- `index.html`: sales overview with order count, revenue, delivered and in-transit counts, orders by status, revenue by payment method, and a product stock table that flags low stock.
+- `orders.html` and `order.html?id=N`: order list and order detail with items, payment and delivery.
+- `service-dashboard.html`: service requests by status and by product, plus a warranty table that works out each sold item's expiry date from the order date and the product's warranty period, and marks it active, expiring soon or expired.
+- `service-requests.html` and `service.html?id=N`: service request list and detail.
+- `about.html`: project summary, team, report download and ER diagram.
+
+## Run it
+
+The pages load the JSON with `fetch`, so they need to be served over HTTP. Opening the files directly won't work. From the repo root:
+
+```bash
+python3 -m http.server 8000
 ```
 
-## License
-MIT (for educational use)
+Then open http://localhost:8000. VS Code Live Server works too.
+
+To load the schema into PostgreSQL:
+
+```bash
+psql -d <your_db> -f database.sql
+```
